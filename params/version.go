@@ -28,24 +28,24 @@ const (
 	VersionMeta  = "stable" // Version metadata to append to the version string
 )
 
-// OPVersion is the version of op-geth
+// MBVersion is the version of mb-geth
 const (
-	OPVersionMajor = 0          // Major version component of the current release
-	OPVersionMinor = 1          // Minor version component of the current release
-	OPVersionPatch = 0          // Patch version component of the current release
-	OPVersionMeta  = "unstable" // Version metadata to append to the version string
+	MBVersionMajor = 0          // Major version component of the current release
+	MBVersionMinor = 1          // Minor version component of the current release
+	MBVersionPatch = 0          // Patch version component of the current release
+	MBVersionMeta  = "unstable" // Version metadata to append to the version string
 )
 
 // Version holds the textual version string.
 var Version = func() string {
-	return fmt.Sprintf("%d.%d.%d", OPVersionMajor, OPVersionMinor, OPVersionPatch)
+	return fmt.Sprintf("%d.%d.%d", MBVersionMajor, MBVersionMinor, MBVersionPatch)
 }()
 
 // VersionWithMeta holds the textual version string including the metadata.
 var VersionWithMeta = func() string {
 	v := Version
-	if OPVersionMeta != "" {
-		v += "-" + OPVersionMeta
+	if MBVersionMeta != "" {
+		v += "-" + MBVersionMeta
 	}
 	return v
 }()
@@ -69,8 +69,8 @@ var GethVersionWithMeta = func() string {
 // releases.
 func ArchiveVersion(gitCommit string) string {
 	vsn := Version
-	if OPVersionMeta != "stable" {
-		vsn += "-" + OPVersionMeta
+	if MBVersionMeta != "stable" {
+		vsn += "-" + MBVersionMeta
 	}
 	if len(gitCommit) >= 8 {
 		vsn += "-" + gitCommit[:8]
@@ -83,7 +83,7 @@ func VersionWithCommit(gitCommit, gitDate string) string {
 	if len(gitCommit) >= 8 {
 		vsn += "-" + gitCommit[:8]
 	}
-	if (OPVersionMeta != "stable") && (gitDate != "") {
+	if (MBVersionMeta != "stable") && (gitDate != "") {
 		vsn += "-" + gitDate
 	}
 	return vsn

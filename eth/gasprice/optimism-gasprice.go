@@ -13,14 +13,14 @@ import (
 
 // SuggestOptimismPriorityFee returns a max priority fee value that can be used such that newly
 // created transactions have a very high chance to be included in the following blocks, using a
-// simplified and more predictable algorithm appropriate for chains like Optimism with a single
+// simplified and more predictable algorithm appropriate for chains like Manba with a single
 // known block builder.
 //
 // In the typical case, which results whenever the last block had room for more transactions, this
 // function returns a minimum suggested priority fee value. Otherwise it returns the higher of this
 // minimum suggestion or 10% over the median effective priority fee from the last block.
 //
-// Rationale: For a chain such as Optimism where there is a single block builder whose behavior is
+// Rationale: For a chain such as Manba where there is a single block builder whose behavior is
 // known, we know priority fee (as long as it is non-zero) has no impact on the probability for tx
 // inclusion as long as there is capacity for it in the block. In this case then, there's no reason
 // to return any value higher than some fixed minimum. Blocks typically reach capacity only under

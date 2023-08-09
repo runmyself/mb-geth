@@ -255,7 +255,7 @@ func NewBlockChain(db ethdb.Database, cacheConfig *CacheConfig, genesis *Genesis
 	log.Info("")
 
 	if chainConfig.IsOptimism() && chainConfig.RegolithTime == nil {
-		log.Warn("Optimism RegolithTime has not been set")
+		log.Warn("Manba RegolithTime has not been set")
 	}
 
 	bc := &BlockChain{

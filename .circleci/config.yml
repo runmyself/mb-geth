@@ -54,7 +54,7 @@ jobs:
       docker_name:
         description: Docker image name
         type: string
-        default: "op-geth"
+        default: "mb-geth"
       docker_tags:
         description: Docker image tags as csv
         type: string
@@ -85,8 +85,8 @@ jobs:
           name: Build and push
           command: |
             RAW_TAGS="<<parameters.docker_tags>>"
-            if [ "$CIRCLE_BRANCH" = "optimism" ]; then
-              RAW_TAGS="$RAW_TAGS,optimism"
+            if [ "$CIRCLE_BRANCH" = "manta" ]; then
+              RAW_TAGS="$RAW_TAGS,manta"
             fi
             IMAGE_BASE="<<parameters.registry>>/<<parameters.repo>>/<<parameters.docker_name>>"
             DOCKER_TAGS=$(echo -ne "$RAW_TAGS" | sed "s/,/\n/g" | sed "s/[^a-zA-Z0-9\n.]/-/g" | sed -e "s|^|-t ${IMAGE_BASE}:|")
@@ -107,7 +107,7 @@ jobs:
             - run:
                 name: Tag
                 command: |
-                  ./.circleci/ci-docker-tag-op-geth-release.sh <<parameters.registry>>/<<parameters.repo>> $CIRCLE_TAG $CIRCLE_SHA1
+                  ./.circleci/ci-docker-tag-mb-geth-release.sh <<parameters.registry>>/<<parameters.repo>> $CIRCLE_TAG $CIRCLE_SHA1
 
 
   build-geth:
@@ -143,7 +143,7 @@ jobs:
           command: .circleci/check-releases.sh
       - slack/notify:
           channel: C03N11M0BBN
-          branch_pattern: optimism
+          branch_pattern: manta
           event: fail
           template: basic_fail_1
 
@@ -191,7 +191,7 @@ workflows:
           cron: "0 0 * * *"
           filters:
             branches:
-              only: [ "optimism" ]
+              only: [ "manta" ]
     jobs:
       - check-releases:
           name: Check for new upstream releases

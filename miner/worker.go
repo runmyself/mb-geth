@@ -384,7 +384,7 @@ func (w *worker) enablePreseal() {
 
 // pending returns the pending state and corresponding block.
 func (w *worker) pending() (*types.Block, *state.StateDB) {
-	if w.chainConfig.Optimism != nil && !w.config.RollupComputePendingBlock {
+	if w.chainConfig.Manba != nil && !w.config.RollupComputePendingBlock {
 		return nil, nil // when not computing the pending block, there is never a pending state
 	}
 	// return a snapshot to avoid contention on currentMu mutex
@@ -398,7 +398,7 @@ func (w *worker) pending() (*types.Block, *state.StateDB) {
 
 // pendingBlock returns pending block.
 func (w *worker) pendingBlock() *types.Block {
-	if w.chainConfig.Optimism != nil && !w.config.RollupComputePendingBlock {
+	if w.chainConfig.Manba != nil && !w.config.RollupComputePendingBlock {
 		// For compatibility when not computing a pending block, we serve the latest block as "pending"
 		headHeader := w.eth.BlockChain().CurrentHeader()
 		headBlock := w.eth.BlockChain().GetBlock(headHeader.Hash(), headHeader.Number.Uint64())
@@ -412,7 +412,7 @@ func (w *worker) pendingBlock() *types.Block {
 
 // pendingBlockAndReceipts returns pending block and corresponding receipts.
 func (w *worker) pendingBlockAndReceipts() (*types.Block, types.Receipts) {
-	if w.chainConfig.Optimism != nil && !w.config.RollupComputePendingBlock {
+	if w.chainConfig.Manba != nil && !w.config.RollupComputePendingBlock {
 		return nil, nil // when not computing the pending block, there are no pending receipts, and thus no pending logs
 	}
 	// return a snapshot to avoid contention on currentMu mutex
@@ -470,7 +470,7 @@ func recalcRecommit(minRecommit, prev time.Duration, target float64, inc bool) t
 // newWorkLoop is a standalone goroutine to submit new sealing work upon received events.
 func (w *worker) newWorkLoop(recommit time.Duration) {
 	defer w.wg.Done()
-	if w.chainConfig.Optimism != nil && !w.config.RollupComputePendingBlock {
+	if w.chainConfig.Manba != nil && !w.config.RollupComputePendingBlock {
 		for { // do not update the pending-block, instead drain work without doing it, to keep producers from blocking.
 			select {
 			case <-w.startCh:
@@ -645,7 +645,7 @@ func (w *worker) mainLoop() {
 			}
 
 		case ev := <-w.txsCh:
-			if w.chainConfig.Optimism != nil && !w.config.RollupComputePendingBlock {
+			if w.chainConfig.Manba != nil && !w.config.RollupComputePendingBlock {
 				continue // don't update the pending-block snapshot if we are not computing the pending block
 			}
 			// Apply transactions to the pending state if we're not sealing
@@ -824,7 +824,7 @@ func (w *worker) makeEnv(parent *types.Header, header *types.Header, coinbase co
 	// Retrieve the parent state to execute on top and start a prefetcher for
 	// the miner to speed block sealing up a bit.
 	state, err := w.chain.StateAt(parent.Root)
-	if err != nil && w.chainConfig.Optimism != nil { // Allow the miner to reorg its own chain arbitrarily deep
+	if err != nil && w.chainConfig.Manba != nil { // Allow the miner to reorg its own chain arbitrarily deep
 		if historicalBackend, ok := w.eth.(BackendWithHistoricalState); ok {
 			var release tracers.StateReleaseFunc
 			parentBlock := w.eth.BlockChain().GetBlockByHash(parent.Hash())
@@ -1042,7 +1042,7 @@ func (w *worker) prepareWork(genParams *generateParams) (*environment, error) {
 		Coinbase:   genParams.coinbase,
 	}
 	// Set the extra field.
-	if len(w.extra) != 0 && w.chainConfig.Optimism == nil { // Optimism chains must not set any extra data.
+	if len(w.extra) != 0 && w.chainConfig.Manba == nil { // Manba chains must not set any extra data.
 		header.Extra = w.extra
 	}
 	// Set the randomness field from the beacon chain if it's available.
@@ -1059,8 +1059,8 @@ func (w *worker) prepareWork(genParams *generateParams) (*environment, error) {
 	}
 	if genParams.gasLimit != nil { // override gas limit if specified
 		header.GasLimit = *genParams.gasLimit
-	} else if w.chain.Config().Optimism != nil && w.config.GasCeil != 0 {
-		// configure the gas limit of pending blocks with the miner gas limit config when using optimism
+	} else if w.chain.Config().Manba != nil && w.config.GasCeil != 0 {
+		// configure the gas limit of pending blocks with the miner gas limit config when using manta
 		header.GasLimit = w.config.GasCeil
 	}
 	// Run the consensus preparation with the default or customized consensus engine.

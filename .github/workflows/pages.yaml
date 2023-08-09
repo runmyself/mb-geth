@@ -4,7 +4,7 @@ permissions:
 on:
   push:
     branches:
-      - optimism
+      - manta
 jobs:
   deploy:
     concurrency: ci-${{ github.ref }}
@@ -25,8 +25,8 @@ jobs:
           mkdir -p tmp/pages
           mv index.html tmp/pages/index.html
           touch tmp/pages/.nojekyll
-          if [ "$GITHUB_REPOSITORY" == "ethereum-optimism/op-geth" ]; then
-              echo "op-geth.optimism.io" > tmp/pages/CNAME
+          if [ "$GITHUB_REPOSITORY" == "ethereum-manta/mb-geth" ]; then
+              echo "mb-geth.manta.io" > tmp/pages/CNAME
           fi;
 
       - name: Deploy

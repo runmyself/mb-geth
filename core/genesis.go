@@ -268,7 +268,7 @@ func (e *GenesisMismatchError) Error() string {
 // ChainOverrides contains the changes to chain config.
 type ChainOverrides struct {
 	OverrideCancun *uint64
-	// optimism
+	// manta
 	OverrideOptimismBedrock  *big.Int
 	OverrideOptimismRegolith *uint64
 	OverrideOptimism         *bool
@@ -298,7 +298,7 @@ func SetupGenesisBlockWithOverride(db ethdb.Database, triedb *trie.Database, gen
 	applyOverrides := func(config *params.ChainConfig) {
 		if config != nil {
 			if config.IsOptimism() && config.ChainID != nil && config.ChainID.Cmp(params.OptimismGoerliChainId) == 0 {
-				// Apply Optimism Goerli regolith time
+				// Apply Manba Goerli regolith time
 				config.RegolithTime = &params.OptimismGoerliRegolithTime
 			}
 			if config.IsOptimism() && config.ChainID != nil && config.ChainID.Cmp(params.BaseGoerliChainId) == 0 {
@@ -316,7 +316,7 @@ func SetupGenesisBlockWithOverride(db ethdb.Database, triedb *trie.Database, gen
 			}
 			if overrides != nil && overrides.OverrideOptimism != nil {
 				if *overrides.OverrideOptimism {
-					config.Optimism = &params.OptimismConfig{
+					config.Manba = &params.OptimismConfig{
 						EIP1559Elasticity:  10,
 						EIP1559Denominator: 50,
 					}

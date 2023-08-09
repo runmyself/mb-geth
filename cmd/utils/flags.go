@@ -285,8 +285,8 @@ var (
 		Category: flags.EthCategory,
 	}
 	OverrideOptimism = &cli.BoolFlag{
-		Name:     "override.optimism",
-		Usage:    "Manually specify optimism",
+		Name:     "override.manta",
+		Usage:    "Manually specify manta",
 		Category: flags.EthCategory,
 	}
 	// Light server and client settings

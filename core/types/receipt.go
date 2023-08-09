@@ -92,7 +92,7 @@ type receiptMarshaling struct {
 	BlockNumber       *hexutil.Big
 	TransactionIndex  hexutil.Uint
 
-	// Optimism: extend receipts with their L1 price (if a rollup tx)
+	// Manba: extend receipts with their L1 price (if a rollup tx)
 	L1GasPrice *hexutil.Big
 	L1GasUsed  *hexutil.Big
 	L1Fee      *hexutil.Big
@@ -391,7 +391,7 @@ func (r *ReceiptForStorage) DecodeRLP(s *rlp.Stream) error {
 	if err != nil {
 		return err
 	}
-	// First try to decode the latest receipt database format, try the pre-bedrock Optimism legacy format otherwise.
+	// First try to decode the latest receipt database format, try the pre-bedrock Manba legacy format otherwise.
 	if err := decodeStoredReceiptRLP(r, blob); err == nil {
 		return nil
 	}
@@ -525,7 +525,7 @@ func (rs Receipts) DeriveFields(config *params.ChainConfig, hash common.Hash, nu
 			logIndex++
 		}
 	}
-	if config.Optimism != nil && len(txs) >= 2 { // need at least an info tx and a non-info tx
+	if config.Manba != nil && len(txs) >= 2 { // need at least an info tx and a non-info tx
 		if data := txs[0].Data(); len(data) >= 4+32*8 { // function selector + 8 arguments to setL1BlockValues
 			l1Basefee := new(big.Int).SetBytes(data[4+32*2 : 4+32*3]) // arg index 2
 			overhead := new(big.Int).SetBytes(data[4+32*6 : 4+32*7])  // arg index 6

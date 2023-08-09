@@ -774,7 +774,7 @@ func (s *BlockChainAPI) GetHeaderByNumber(ctx context.Context, number rpc.BlockN
 	header, err := s.b.HeaderByNumber(ctx, number)
 	if header != nil && err == nil {
 		response := s.rpcMarshalHeader(ctx, header)
-		if number == rpc.PendingBlockNumber && s.b.ChainConfig().Optimism == nil { // don't remove info if optimism
+		if number == rpc.PendingBlockNumber && s.b.ChainConfig().Manba == nil { // don't remove info if manta
 			// Pending header need to nil out a few fields
 			for _, field := range []string{"hash", "nonce", "miner"} {
 				response[field] = nil
@@ -803,7 +803,7 @@ func (s *BlockChainAPI) GetBlockByNumber(ctx context.Context, number rpc.BlockNu
 	block, err := s.b.BlockByNumber(ctx, number)
 	if block != nil && err == nil {
 		response, err := s.rpcMarshalBlock(ctx, block, true, fullTx)
-		if err == nil && number == rpc.PendingBlockNumber && s.b.ChainConfig().Optimism == nil { // don't remove info if optimism
+		if err == nil && number == rpc.PendingBlockNumber && s.b.ChainConfig().Manba == nil { // don't remove info if manta
 			// Pending blocks need to nil out a few fields
 			for _, field := range []string{"hash", "nonce", "miner"} {
 				response[field] = nil
@@ -1874,13 +1874,13 @@ func (s *TransactionAPI) GetTransactionReceipt(ctx context.Context, hash common.
 		"effectiveGasPrice": (*hexutil.Big)(receipt.EffectiveGasPrice),
 	}
 
-	if s.b.ChainConfig().Optimism != nil && !tx.IsDepositTx() {
+	if s.b.ChainConfig().Manba != nil && !tx.IsDepositTx() {
 		fields["l1GasPrice"] = (*hexutil.Big)(receipt.L1GasPrice)
 		fields["l1GasUsed"] = (*hexutil.Big)(receipt.L1GasUsed)
 		fields["l1Fee"] = (*hexutil.Big)(receipt.L1Fee)
 		fields["l1FeeScalar"] = receipt.FeeScalar.String()
 	}
-	if s.b.ChainConfig().Optimism != nil && tx.IsDepositTx() && receipt.DepositNonce != nil {
+	if s.b.ChainConfig().Manba != nil && tx.IsDepositTx() && receipt.DepositNonce != nil {
 		fields["depositNonce"] = hexutil.Uint64(*receipt.DepositNonce)
 	}
 

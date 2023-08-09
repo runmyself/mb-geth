@@ -31,7 +31,7 @@ var (
 	GoerliGenesisHash  = common.HexToHash("0xbf7e331f7f7c1dd2e05159666b3bf8bc7a8a3a9eb1d518969eab529dd9b88c1a")
 )
 
-// OP Stack chain config
+// MB Stack chain config
 var (
 	OptimismGoerliChainId = big.NewInt(420)
 	// March 17, 2023 @ 7:00:00 pm UTC
@@ -255,13 +255,13 @@ var (
 	}
 	TestRules = TestChainConfig.Rules(new(big.Int), false, 0)
 
-	// This is an Optimism chain config with bedrock starting a block 5, introduced for historical endpoint testing, largely based on the clique config
+	// This is an Manba chain config with bedrock starting a block 5, introduced for historical endpoint testing, largely based on the clique config
 	OptimismTestConfig = func() *ChainConfig {
 		conf := *AllCliqueProtocolChanges // copy the config
 		conf.Clique = nil
 		conf.TerminalTotalDifficultyPassed = true
 		conf.BedrockBlock = big.NewInt(5)
-		conf.Optimism = &OptimismConfig{EIP1559Elasticity: 50, EIP1559Denominator: 10}
+		conf.Manba = &OptimismConfig{EIP1559Elasticity: 50, EIP1559Denominator: 10}
 		return &conf
 	}()
 )
@@ -309,8 +309,8 @@ type ChainConfig struct {
 	CancunTime   *uint64 `json:"cancunTime,omitempty"`   // Cancun switch time (nil = no fork, 0 = already on cancun)
 	PragueTime   *uint64 `json:"pragueTime,omitempty"`   // Prague switch time (nil = no fork, 0 = already on prague)
 
-	BedrockBlock *big.Int `json:"bedrockBlock,omitempty"` // Bedrock switch block (nil = no fork, 0 = already on optimism bedrock)
-	RegolithTime *uint64  `json:"regolithTime,omitempty"` // Regolith switch time (nil = no fork, 0 = already on optimism regolith)
+	BedrockBlock *big.Int `json:"bedrockBlock,omitempty"` // Bedrock switch block (nil = no fork, 0 = already on manta bedrock)
+	RegolithTime *uint64  `json:"regolithTime,omitempty"` // Regolith switch time (nil = no fork, 0 = already on manta regolith)
 
 	// TerminalTotalDifficulty is the amount of total difficulty reached by
 	// the network that triggers the consensus upgrade.
@@ -325,8 +325,8 @@ type ChainConfig struct {
 	Ethash *EthashConfig `json:"ethash,omitempty"`
 	Clique *CliqueConfig `json:"clique,omitempty"`
 
-	// Optimism config, nil if not active
-	Optimism *OptimismConfig `json:"optimism,omitempty"`
+	// Manba config, nil if not active
+	Manba *OptimismConfig `json:"manta,omitempty"`
 }
 
 // EthashConfig is the consensus engine configs for proof-of-work based sealing.
@@ -348,15 +348,15 @@ func (c *CliqueConfig) String() string {
 	return "clique"
 }
 
-// OptimismConfig is the optimism config.
+// OptimismConfig is the manta config.
 type OptimismConfig struct {
 	EIP1559Elasticity  uint64 `json:"eip1559Elasticity"`
 	EIP1559Denominator uint64 `json:"eip1559Denominator"`
 }
 
-// String implements the stringer interface, returning the optimism fee config details.
+// String implements the stringer interface, returning the manta fee config details.
 func (o *OptimismConfig) String() string {
-	return "optimism"
+	return "manta"
 }
 
 // Description returns a human-readable description of ChainConfig.
@@ -370,8 +370,8 @@ func (c *ChainConfig) Description() string {
 	}
 	banner += fmt.Sprintf("Chain ID:  %v (%s)\n", c.ChainID, network)
 	switch {
-	case c.Optimism != nil:
-		banner += "Consensus: Optimism\n"
+	case c.Manba != nil:
+		banner += "Consensus: Manba\n"
 	case c.Ethash != nil:
 		if c.TerminalTotalDifficulty == nil {
 			banner += "Consensus: Ethash (proof-of-work)\n"
@@ -557,12 +557,12 @@ func (c *ChainConfig) IsRegolith(time uint64) bool {
 	return isTimestampForked(c.RegolithTime, time)
 }
 
-// IsOptimism returns whether the node is an optimism node or not.
+// IsOptimism returns whether the node is an manta node or not.
 func (c *ChainConfig) IsOptimism() bool {
-	return c.Optimism != nil
+	return c.Manba != nil
 }
 
-// IsOptimismBedrock returns true iff this is an optimism node & bedrock is active
+// IsOptimismBedrock returns true iff this is an manta node & bedrock is active
 func (c *ChainConfig) IsOptimismBedrock(num *big.Int) bool {
 	return c.IsOptimism() && c.IsBedrock(num)
 }
@@ -571,7 +571,7 @@ func (c *ChainConfig) IsOptimismRegolith(time uint64) bool {
 	return c.IsOptimism() && c.IsRegolith(time)
 }
 
-// IsOptimismPreBedrock returns true iff this is an optimism node & bedrock is not yet active
+// IsOptimismPreBedrock returns true iff this is an manta node & bedrock is not yet active
 func (c *ChainConfig) IsOptimismPreBedrock(num *big.Int) bool {
 	return c.IsOptimism() && !c.IsBedrock(num)
 }
@@ -738,16 +738,16 @@ func (c *ChainConfig) checkCompatible(newcfg *ChainConfig, headNumber *big.Int, 
 
 // BaseFeeChangeDenominator bounds the amount the base fee can change between blocks.
 func (c *ChainConfig) BaseFeeChangeDenominator() uint64 {
-	if c.Optimism != nil {
-		return c.Optimism.EIP1559Denominator
+	if c.Manba != nil {
+		return c.Manba.EIP1559Denominator
 	}
 	return DefaultBaseFeeChangeDenominator
 }
 
 // ElasticityMultiplier bounds the maximum gas limit an EIP-1559 block may have.
 func (c *ChainConfig) ElasticityMultiplier() uint64 {
-	if c.Optimism != nil {
-		return c.Optimism.EIP1559Elasticity
+	if c.Manba != nil {
+		return c.Manba.EIP1559Elasticity
 	}
 	return DefaultElasticityMultiplier
 }
@@ -909,7 +909,7 @@ func (c *ChainConfig) Rules(num *big.Int, isMerge bool, timestamp uint64) Rules 
 		IsShanghai:       c.IsShanghai(num, timestamp),
 		IsCancun:         c.IsCancun(num, timestamp),
 		IsPrague:         c.IsPrague(num, timestamp),
-		// Optimism
+		// Manba
 		IsOptimismBedrock:  c.IsOptimismBedrock(num),
 		IsOptimismRegolith: c.IsOptimismRegolith(timestamp),
 	}
